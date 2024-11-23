@@ -43,6 +43,10 @@ Download the JSON file containing your credentials."""
 
 FIREBASE_AUTH = "........"
 
+[
+![Screenshot 2024-11-23 220920](https://github.com/user-attachments/assets/9aa74325-9d9f-46f9-858c-f861b1aa33fa)
+](url)
+
 # Pin definitions
 MOISTURE_SENSOR_PIN = 0  # Soil Moisture Sensor Pin (A0)
 TRIG_PIN = 14            # Ultrasonic Sensor Trigger Pin (D5)
