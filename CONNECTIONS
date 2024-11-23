@@ -1,0 +1,17 @@
+Connections:
+Soil Moisture Sensor:
+
+Connect the VCC pin of the soil moisture sensor to the 3.3V pin of the ESP8266.
+Connect the GND pin of the soil moisture sensor to the GND pin of the ESP8266.
+Connect the Analog Output (A0) pin of the soil moisture sensor to GPIO0 (A0) on the ESP8266.
+Ultrasonic Sensor:
+
+Connect the VCC pin of the ultrasonic sensor to the 3.3V pin of the ESP8266.
+Connect the GND pin of the ultrasonic sensor to the GND pin of the ESP8266.
+Connect the Trigger (TRIG) pin of the ultrasonic sensor to GPIO14 (D5) on the ESP8266.
+Connect the Echo (ECHO) pin of the ultrasonic sensor to GPIO12 (D6) on the ESP8266.
+IR Sensor:
+
+Connect the VCC pin of the IR sensor to the 3.3V pin of the ESP8266.
+Connect the GND pin of the IR sensor to the GND pin of the ESP8266.
+Connect the Signal (OUT) pin of the IR sensor to GPIO13 (D7) on the ESP8266.
