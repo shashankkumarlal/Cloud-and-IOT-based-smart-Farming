@@ -7,8 +7,8 @@ import urequests  # To send HTTP requests to Firebase
 import ujson
 
 # WiFi credentials
-WIFI_SSID = "wifi"
-WIFI_PASSWORD = "12345678"
+WIFI_SSID = "....YOUR WIFI NAME...."
+WIFI_PASSWORD = "....YOUR WIFI PWD...."
 
 """Firebase (easier for beginners)
 Step 1: Create a Firebase Project
