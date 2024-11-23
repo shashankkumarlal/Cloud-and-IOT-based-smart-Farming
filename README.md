@@ -1,3 +1,4 @@
+#USE IDE THAT SUPPORTS PYTHON I HAVE USED THONNY
 import network
 import time
 import machine
@@ -9,9 +10,38 @@ import ujson
 WIFI_SSID = "wifi"
 WIFI_PASSWORD = "12345678"
 
+"""Firebase (easier for beginners)
+Step 1: Create a Firebase Project
+Go to the Firebase Console.
+Click on Add Project in the top-right corner.
+Follow the prompts to create a new project:
+Name the project (e.g., "SmartFarmingProject").
+Select your country/region and accept the terms.
+Disable Google Analytics (if you don’t want to use it).
+Once the project is created, click on Continue.
+Step 2: Set Up Firebase Realtime Database
+In the Firebase Console, on the left-hand menu, click Realtime Database under the "Build" section.
+Click on Create Database.
+Choose Start in test mode for development (be sure to update security rules for production).
+Set the location for your database (choose the one closest to you).
+Click Enable.
+Step 3: Get Firebase Credentials
+Go to Project Settings by clicking the gear icon next to Project Overview.
+Under Service Accounts, click Firebase Admin SDK.
+Click Generate New Private Key.
+Save the JSON file. This will contain the credentials you need to interact with Firebase from your Arduino (or other platforms).
+"""
+
 # Firebase credentials
-FIREBASE_HOST = "https://iot-and-cloud-based-farming-default-rtdb.firebaseio.com/"
-FIREBASE_AUTH = "pq8B5glb7Ua3Wlc9aVVNQTcEs3lrNXhc22IzCrwg"
+FIREBASE_HOST = "https:......."
+
+"""Get Firebase Credentials
+In the Firebase Console, go to Project Settings by clicking the gear icon next to Project Overview.
+Under Service Accounts, click Firebase Admin SDK.
+Click Generate New Private Key.
+Download the JSON file containing your credentials."""
+
+FIREBASE_AUTH = "........"
 
 # Pin definitions
 MOISTURE_SENSOR_PIN = 0  # Soil Moisture Sensor Pin (A0)
