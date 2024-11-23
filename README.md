@@ -1,69 +1,124 @@
-# Cloud-and-IOT-based-smart-Farming
-This IoT-based Smart Farming System monitors conditions using sensors and ESP8266, with data sent to Google Cloud for insights and control. It boosts productivity and reduces resource waste through automation.
+import network
+import time
+import machine
+from machine import Pin, ADC
+import urequests  # To send HTTP requests to Firebase
+import ujson
 
-#IoT-Based Smart Farming with Cloud Integration
-#Description:
-This project aims to create a smart farming system using IoT devices, cloud integration, and sensors to monitor and control various agricultural parameters remotely. By leveraging the ESP8266 microcontroller and sensors, this system collects data such as soil moisture, temperature, and distance, and uploads this data to the cloud using Google Cloud. This enables real-time monitoring and decision-making for optimal farming conditions, thus improving efficiency and crop management.
+# WiFi credentials
+WIFI_SSID = "wifi"
+WIFI_PASSWORD = "12345678"
 
-#Features:
-Real-time monitoring: Continuously collects data from sensors and sends it to the cloud for live tracking.
-Remote control: Allows for remote control of irrigation systems based on sensor data.
-Sensor integration: Uses soil moisture sensor, ultrasonic sensor for distance measurement, and a temperature sensor to monitor environmental conditions.
-Cloud Integration: Data is uploaded to Google Cloud for processing, storage, and visualization.
-Alert System: Sends notifications (e.g., soil moisture levels are low) via cloud when certain thresholds are crossed.
-Installation:
-To replicate or run this project, follow these steps:
+# Firebase credentials
+FIREBASE_HOST = "https://iot-and-cloud-based-farming-default-rtdb.firebaseio.com/"
+FIREBASE_AUTH = "pq8B5glb7Ua3Wlc9aVVNQTcEs3lrNXhc22IzCrwg"
 
-#Hardware Requirements:
+# Pin definitions
+MOISTURE_SENSOR_PIN = 0  # Soil Moisture Sensor Pin (A0)
+TRIG_PIN = 14            # Ultrasonic Sensor Trigger Pin (D5)
+ECHO_PIN = 12            # Ultrasonic Sensor Echo Pin (D6)
+IR_SENSOR_PIN = 13       # IR Sensor Pin (D7)
 
-ESP8266 microcontroller
-Soil moisture sensor
-Ultrasonic sensor
-Jumper wires, breadboard, and power supply
+# Connect to Wi-Fi
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    if not wlan.isconnected():
+        print('Connecting to WiFi...')
+        wlan.connect(WIFI_SSID, WIFI_PASSWORD)
+        while not wlan.isconnected():
+            time.sleep(1)
+    print('Connected to WiFi, IP:', wlan.ifconfig()[0])
 
-#Software Requirements:
+# Initialize sensors
+moisture_sensor = ADC(MOISTURE_SENSOR_PIN)  # Soil Moisture sensor
+ir_sensor = Pin(IR_SENSOR_PIN, Pin.IN)  # IR sensor
+trig_pin = Pin(TRIG_PIN, Pin.OUT)  # Ultrasonic Trigger Pin
+echo_pin = Pin(ECHO_PIN, Pin.IN)  # Ultrasonic Echo Pin
 
-Install MicroPython firmware on your ESP8266.
-Install Python on your computer.
-Install the MicroPython library for the ESP8266.
-Set up a Google Cloud account for data storage and IoT integration (you can use Firebase for cloud storage).
-Steps:
+# Read the soil moisture sensor
+def read_soil_moisture():
+    moisture_level = moisture_sensor.read()
+    print(f"Soil Moisture Level: {moisture_level}")  # Debug print
+    if moisture_level == 1024:
+        print("Warning: Maximum moisture level detected. Soil may be too wet.")
+    return moisture_level
 
-#Connect your sensors to the ESP8266 as per the circuit diagram.
-Upload the MicroPython code to the ESP8266 via serial.
-Set up Google Cloud to receive and store data from the ESP8266.
-Run the Python script on your computer to visualize or send alerts based on sensor readings.
-Run the Project:
+# Read the ultrasonic sensor
+def read_ultrasonic_distance():
+    trig_pin.value(0)
+    time.sleep_us(2)
+    trig_pin.value(1)
+    time.sleep_us(10)
+    trig_pin.value(0)
+    pulse_duration = machine.time_pulse_us(echo_pin, 1)
+    if pulse_duration == -1:
+        print("Invalid pulse duration, check ultrasonic sensor connection.")
+        return 0  # Invalid distance
+    else:
+        distance = pulse_duration * 0.0344 / 2  # Convert to cm
+        print(f"Ultrasonic Distance: {distance} cm")  # Debug print
+        return distance
 
-#Once the setup is complete, the ESP8266 will send data to Google Cloud, and you can monitor the system from anywhere via your Google Cloud dashboard.
-Technologies Used:
-ESP8266: Low-cost Wi-Fi microcontroller for sensor data collection and cloud communication.
-MicroPython: Lightweight Python implementation for the ESP8266.
-Google Cloud: Cloud platform for data storage and processing.
-Python: Used for backend processing and visualization of the data.
+# Read the IR sensor
+def read_ir_sensor():
+    ir_value = ir_sensor.value()  # Returns 0 if no object, 1 if object detected
+    print(f"IR Sensor Status: {ir_value}")  # Debug print
+    return ir_value
 
-#Connections:
-Soil Moisture Sensor:
+# Upload data to Firebase
+def upload_to_firebase(moisture, distance, ir_status):
+    url = FIREBASE_HOST + "/sensorData.json?auth=" + FIREBASE_AUTH
+    data = {
+        "moisture": moisture,
+        "distance": distance,
+        "irStatus": ir_status
+    }
+    headers = {'Content-Type': 'application/json'}
+    try:
+        response = urequests.post(url, data=ujson.dumps(data), headers=headers)
+        print("Data uploaded:", response.status_code)
+        response.close()
+    except Exception as e:
+        print(f"Error uploading data to Firebase: {e}")
 
-Connect the VCC pin of the soil moisture sensor to the 3.3V pin of the ESP8266.
-Connect the GND pin of the soil moisture sensor to the GND pin of the ESP8266.
-Connect the Analog Output (A0) pin of the soil moisture sensor to GPIO0 (A0) on the ESP8266.
+# Test sensors before starting main loop
+def test_sensors():
+    print("Testing soil moisture sensor...")
+    moisture = read_soil_moisture()
+    print("Testing ultrasonic sensor...")
+    distance = read_ultrasonic_distance()
+    print("Testing IR sensor...")
+    ir_status = read_ir_sensor()
+    return moisture, distance, ir_status
 
-Ultrasonic Sensor:
+# Main logic
+def main():
+    connect_wifi
+    # Test sensors
+    moisture, distance, ir_status = test_sensors()
 
-Connect the VCC pin of the ultrasonic sensor to the 3.3V pin of the ESP8266.
-Connect the GND pin of the ultrasonic sensor to the GND pin of the ESP8266.
-Connect the Trigger (TRIG) pin of the ultrasonic sensor to GPIO14 (D5) on the ESP8266.
-Connect the Echo (ECHO) pin of the ultrasonic sensor to GPIO12 (D6) on the ESP8266.
+    while True:
+        # Read sensor data
+        moisture = read_soil_moisture()
+        distance = read_ultrasonic_distance()
+        ir_status = read_ir_sensor()
 
-IR Sensor:
+        # Debug print to see sensor data
+        print(f"Moisture: {moisture}, Distance: {distance}, IR Status: {ir_status}")
 
-Connect the VCC pin of the IR sensor to the 3.3V pin of the ESP8266.
-Connect the GND pin of the IR sensor to the GND pin of the ESP8266.
-Connect the Signal (OUT) pin of the IR sensor to GPIO13 (D7) on the ESP8266.
+        # Upload data to Firebase if changed
+        upload_to_firebase(moisture, distance, ir_status)
 
-#How the Code Works with the Connections:
-The soil moisture sensor reads the moisture level and is connected to GPIO0 (A0), which is read by the ADC pin.
-The ultrasonic sensor's trigger and echo pins are connected to GPIO14 (D5) and GPIO12 (D6), respectively, for measuring distance.
-The IR sensor detects whether there is an object and is connected to GPIO13 (D7).
-The relay, which controls the water pump, can be connected to another GPIO pin to activate the pump when the soil is dry.
+        # Control irrigation logic based on sensor data
+        if moisture < 400 and ir_status == 1:  # Dry soil and no object detected
+            print("Soil is dry and no object detected, activating water pump...")
+        elif ir_status == 0:  # Object detected
+            print("Object detected, irrigation blocked.")
+        else:  # Soil is moist enough
+            print("Soil is moist enough, pump is off.")
+
+        time.sleep(10)  # Wait for 10 seconds before the next reading
+
+# Run the program
+main()
