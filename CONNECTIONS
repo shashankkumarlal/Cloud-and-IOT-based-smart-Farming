@@ -16,4 +16,3 @@ Connect the VCC pin of the IR sensor to the 3.3V pin of the ESP8266.
 Connect the GND pin of the IR sensor to the GND pin of the ESP8266.
 Connect the Signal (OUT) pin of the IR sensor to GPIO13 (D7) on the ESP8266.
 
-[iot-and-cloud-based-farming-firebase-adminsdk-98nek-844a0863f1.json](https://github.com/user-attachments/files/17894028/iot-and-cloud-based-farming-firebase-adminsdk-98nek-844a0863f1.json)
